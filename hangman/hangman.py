@@ -84,11 +84,11 @@ class Hangman:
 
 def play_hangman():
     score = 0
+    num_games = 0
+    cont = True
 
-    print("Enter number of games: ")
-    num_games = int(input())
-
-    for i in range(num_games):
+    while cont:
+        num_games += 1
         hangman = Hangman()
         hangman.init_setup()
         terminate = False
@@ -105,12 +105,15 @@ def play_hangman():
 
             if hangman.letter_list == hangman.guess_list:
                 score += 1
-                print(f"Successfully guessed '{hangman.word}'!\nCurrent score = {score}/{i + 1}")
+                print(f"Successfully guessed '{hangman.word}'!\nCurrent score = {score}/{num_games} ({round(score / num_games * 100, 2)}%)")
                 break
             elif hangman.state >= 7:
-                print(f"You have lost. The word was '{hangman.word}'\nCurrent score = {score}/{i + 1}")
+                print(f"You have lost. The word was '{hangman.word}'\nCurrent score = {score}/{num_games} ({round(score / num_games * 100, 2)}%)")
                 break
         
         print("________________________________________")
+
+        print("Continue (Y/N): ")
+        cont = input().lower() == 'y'
 
 play_hangman()
