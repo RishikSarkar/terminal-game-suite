@@ -66,19 +66,35 @@ class Hangman:
             self.state += 1
 
     def update_letters_left(self):
-        alphabet = set(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'])
+        alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
 
-        return alphabet - self.prior_guess
+        for i in range(len(alphabet)):
+            if alphabet[i] in self.prior_guess:
+                if alphabet[i] in self.letter_list:
+                    alphabet[i] = "✓"
+                else:
+                    alphabet[i] = "✗"
+
+        formatted_letters_left = "| "
+
+        for i in range(1, 3):
+            for j in range(1, 14):
+                formatted_letters_left += alphabet[j + (13 * (i - 1)) - 1] + " | "
+            
+            if i == 1:
+                formatted_letters_left += "\n| "
+
+        return formatted_letters_left
 
     def init_setup(self):
         self.set_random_word()
-        print(f"{self.draw_hangman()}\n\n{self.format_guess_list()}\n\nLetters left: {self.update_letters_left()}")
+        print(f"{self.draw_hangman()}\n\n{self.format_guess_list()}\n\nLetters left:\n{self.update_letters_left()}")
     
     def guess_letter(self, letter):
         success = self.update_guess_list(letter)
         self.update_state(success)
 
-        print(f"{self.draw_hangman()}\n\n{self.format_guess_list()}\n\nLetters left: {self.update_letters_left()}")
+        print(f"{self.draw_hangman()}\n\n{self.format_guess_list()}\n\nLetters left:\n{self.update_letters_left()}")
 
         return self.guess_list == self.letter_list
 
@@ -105,15 +121,17 @@ def play_hangman():
 
             if hangman.letter_list == hangman.guess_list:
                 score += 1
-                print(f"Successfully guessed '{hangman.word}'!\nCurrent score = {score}/{num_games} ({round(score / num_games * 100, 2)}%)")
+                print(f"\nSuccessfully guessed '{hangman.word}'!\nCurrent score = {score}/{num_games} ({round(score / num_games * 100, 2)}%)")
                 break
             elif hangman.state >= 7:
-                print(f"You have lost. The word was '{hangman.word}'\nCurrent score = {score}/{num_games} ({round(score / num_games * 100, 2)}%)")
+                print(f"\nYou have lost. The word was '{hangman.word}'\nCurrent score = {score}/{num_games} ({round(score / num_games * 100, 2)}%)")
                 break
         
         print("________________________________________")
 
-        print("Continue (Y/N): ")
+        print("\nContinue (Y/N): ")
         cont = input().lower() == 'y'
+
+        print("________________________________________")
 
 play_hangman()
