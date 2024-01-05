@@ -34,27 +34,91 @@ class TicTacToe:
         print(f"Easy Bot move: {bot_move + 1}")
 
         return self.check_win()
+    
+    def hard_evaluate(self, symbol):
+        win, winner = self.check_win()
 
+        if win:
+            return 10 if winner == symbol else -10
+        elif self.check_draw():
+            return 0
+        
+        return None
+
+    def hard_minimax(self, depth, maximizing, symbol):
+        score = self.hard_evaluate(symbol)
+
+        player_symbol = "O"
+
+        if symbol == "O":
+            player_symbol = "X"
+
+        if score != None:
+            return score
+        
+        if maximizing:
+            best_score = float('-inf')
+            for i in range(9):
+                if self.grid[i] == " ":
+                    self.grid[i] = symbol
+                    score = self.hard_minimax(depth + 1, False, symbol)
+                    self.grid[i] = " "
+                    best_score = max(score, best_score)
+            return best_score
+        else:
+            best_score = float('inf')
+            for i in range(9):
+                if self.grid[i] == " ":
+                    self.grid[i] = player_symbol
+                    score = self.hard_minimax(depth + 1, True, symbol)
+                    self.grid[i] = " "
+                    best_score = min(score, best_score)
+            return best_score
+
+    def hard_move(self, symbol, first_move):
+        if first_move:
+            self.grid[4] = symbol
+            print(f"Hard Bot move: {5}")
+
+            return self.check_win()
+
+        best_score = float('-inf')
+        best_move = None
+
+        for i in range(9):
+            if self.grid[i] == " ":
+                self.grid[i] = symbol
+                score = self.hard_minimax(0, False, symbol)
+                self.grid[i] = " "
+
+                if score > best_score:
+                    best_score = score
+                    best_move = i
+
+        self.grid[best_move] = symbol
+        print(f"Hard Bot move: {best_move + 1}")
+
+        return self.check_win()
     
     def check_win(self):
         if self.grid[0] == self.grid[1] == self.grid[2] != " ":
-            return True
+            return True, self.grid[0]
         elif self.grid[3] == self.grid[4] == self.grid[5] != " ":
-            return True
+            return True, self.grid[3]
         elif self.grid[6] == self.grid[7] == self.grid[8] != " ":
-            return True
+            return True, self.grid[6]
         elif self.grid[0] == self.grid[3] == self.grid[6] != " ":
-            return True
+            return True, self.grid[0]
         elif self.grid[1] == self.grid[4] == self.grid[7] != " ":
-            return True
+            return True, self.grid[1]
         elif self.grid[2] == self.grid[5] == self.grid[8] != " ":
-            return True
+            return True, self.grid[2]
         elif self.grid[0] == self.grid[4] == self.grid[8] != " ":
-            return True
+            return True, self.grid[0]
         elif self.grid[2] == self.grid[4] == self.grid[6] != " ":
-            return True
+            return True, self.grid[2]
         
-        return False
+        return False, None
     
     def check_draw(self):
         if " " not in self.grid:
@@ -76,7 +140,7 @@ class TicTacToe:
 
         while True:
             print("Player 1")
-            win = self.user_move('X')
+            win, _ = self.user_move('X')
             print("\n" + self.print_grid() + "\n")
 
             if win:
@@ -90,7 +154,7 @@ class TicTacToe:
                 break
 
             print("Player 2")
-            win = self.user_move('O')
+            win, _ = self.user_move('O')
             print("\n" + self.print_grid() + "\n")
 
             if win:
@@ -132,7 +196,7 @@ class TicTacToe:
             print("\n" + self.print_grid() + "\n")
 
         while True:
-            win = self.user_move(player_symbol)
+            win, _ = self.user_move(player_symbol)
             print("\n" + self.print_grid() + "\n")
 
             if win:
@@ -146,11 +210,67 @@ class TicTacToe:
                 break
             
             time.sleep(0.5)
-            win = self.easy_move(bot_symbol)
+            win, _ = self.easy_move(bot_symbol)
             print("\n" + self.print_grid() + "\n")
 
             if win:
                 print("Easy Bot wins!")
+                print("\n" + self.print_grid())
+                break
+
+            draw = self.check_draw()
+            if draw:
+                print("Draw!")
+                break
+        
+        return 0
+    
+    def play_hard(self):
+        first_player = random.randint(0, 1)
+
+        player_symbol = "X"
+        bot_symbol = "O"
+
+        if first_player == 1:
+            player_symbol = "O"
+            bot_symbol = "X"
+
+        print(f"Player Symbol: {player_symbol}")
+        print(f"Hard Bot Symbol: {bot_symbol}\n")
+
+        if first_player == 0:
+            print("Player goes first!\n")
+        else:
+            print("Hard Bot goes first!\n")
+
+        win = False
+
+        print(self.print_grid() + "\n")
+
+        if first_player == 1:
+            win, _ = self.hard_move(bot_symbol, True)
+            print("\n" + self.print_grid() + "\n")
+
+        while True:
+            win, _ = self.user_move(player_symbol)
+            print("\n" + self.print_grid() + "\n")
+
+            if win:
+                print("Player wins!")
+                print("\n" + self.print_grid())
+                break
+
+            draw = self.check_draw()
+            if draw:
+                print("Draw!")
+                break
+            
+            time.sleep(0.5)
+            win, _ = self.hard_move(bot_symbol, False)
+            print("\n" + self.print_grid() + "\n")
+
+            if win:
+                print("Hard Bot wins!")
                 print("\n" + self.print_grid())
                 break
 
@@ -186,6 +306,8 @@ class TicTacToe:
             self.play_2p()
         elif self.mode == 1:
             self.play_easy()
+        elif self.mode == 2:
+            self.play_hard()
     
 game = TicTacToe()
 
