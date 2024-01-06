@@ -13,15 +13,27 @@ class TicTacToe:
         self.grid = [" "] * 9
     
     def user_move(self, symbol):
-        print("Enter move (1 - 9):")
-        move = int(input())
+        move = input("Enter move (1 - 9) or 'h' to view grid indices: ")
+
+        if move.lower() == 'h':
+            sample_grid_string = "  1  |  2  |  3  \n-----|-----|-----\n  4  |  5  |  6  \n-----|-----|-----\n  7  |  8  |  9  "
+            print(f"________________________________________\n\nTo mark a cell, enter the corresponding number as shown below:\n\n{sample_grid_string}\n________________________________________\n")
+            print(self.print_grid() + "\n")
+            return self.user_move(symbol)
+        elif not move.isnumeric() or (move.isnumeric and (int(move) < 1 or int(move) > 9)):
+            print("Illegal move. Try again!")
+            print("\n" + self.print_grid() + "\n")
+            return self.user_move(symbol)
+        
+        move = int(move)
 
         if self.grid[move - 1] == " ":
             self.grid[move - 1] = symbol
             return self.check_win()
         else:
-            print("Illegal move. Try again!")
-            self.user_move(symbol)
+            print("Cell is not empty. Try again!")
+            print("\n" + self.print_grid() + "\n")
+            return self.user_move(symbol)
 
     def easy_move(self, symbol):
         possible_moves = []
@@ -35,18 +47,18 @@ class TicTacToe:
 
         return self.check_win()
     
-    def hard_evaluate(self, symbol):
-        win, winner = self.check_win()
+    def hard_evaluate(self, depth, symbol):
+        win, winner, _ = self.check_win()
 
         if win:
-            return 10 if winner == symbol else -10
+            return 10 - depth if winner == symbol else -10 + depth
         elif self.check_draw():
             return 0
         
         return None
 
     def hard_minimax(self, depth, maximizing, symbol):
-        score = self.hard_evaluate(symbol)
+        score = self.hard_evaluate(depth, symbol)
 
         player_symbol = "O"
 
@@ -102,23 +114,23 @@ class TicTacToe:
     
     def check_win(self):
         if self.grid[0] == self.grid[1] == self.grid[2] != " ":
-            return True, self.grid[0]
+            return True, self.grid[0], 1
         elif self.grid[3] == self.grid[4] == self.grid[5] != " ":
-            return True, self.grid[3]
+            return True, self.grid[3], 2
         elif self.grid[6] == self.grid[7] == self.grid[8] != " ":
-            return True, self.grid[6]
+            return True, self.grid[6], 3
         elif self.grid[0] == self.grid[3] == self.grid[6] != " ":
-            return True, self.grid[0]
+            return True, self.grid[0], 4
         elif self.grid[1] == self.grid[4] == self.grid[7] != " ":
-            return True, self.grid[1]
+            return True, self.grid[1], 5
         elif self.grid[2] == self.grid[5] == self.grid[8] != " ":
-            return True, self.grid[2]
+            return True, self.grid[2], 6
         elif self.grid[0] == self.grid[4] == self.grid[8] != " ":
-            return True, self.grid[0]
+            return True, self.grid[0], 7
         elif self.grid[2] == self.grid[4] == self.grid[6] != " ":
-            return True, self.grid[2]
+            return True, self.grid[2], 8
         
-        return False, None
+        return False, None, 0
     
     def check_draw(self):
         if " " not in self.grid:
@@ -130,22 +142,45 @@ class TicTacToe:
         grid_string = f"  {self.grid[0]}  |  {self.grid[1]}  |  {self.grid[2]}  \n-----|-----|-----\n  {self.grid[3]}  |  {self.grid[4]}  |  {self.grid[5]}  \n-----|-----|-----\n  {self.grid[6]}  |  {self.grid[7]}  |  {self.grid[8]}  "
         return grid_string
     
+    def print_win_grid(self, win_dir):
+        if win_dir == 1:
+            grid_string = f"  ―  |  ―  |  ―  \n-----|-----|-----\n  {self.grid[3]}  |  {self.grid[4]}  |  {self.grid[5]}  \n-----|-----|-----\n  {self.grid[6]}  |  {self.grid[7]}  |  {self.grid[8]}  "
+        elif win_dir == 2:
+            grid_string = f"  {self.grid[0]}  |  {self.grid[1]}  |  {self.grid[2]}  \n-----|-----|-----\n  ―  |  ―  |  ―  \n-----|-----|-----\n  {self.grid[6]}  |  {self.grid[7]}  |  {self.grid[8]}  "
+        elif win_dir == 3:
+            grid_string = f"  {self.grid[0]}  |  {self.grid[1]}  |  {self.grid[2]}  \n-----|-----|-----\n  {self.grid[3]}  |  {self.grid[4]}  |  {self.grid[5]}  \n-----|-----|-----\n  ―  |  ―  |  ―  "
+        elif win_dir == 4:
+            grid_string = f"  |  |  {self.grid[1]}  |  {self.grid[2]}  \n-----|-----|-----\n  |  |  {self.grid[4]}  |  {self.grid[5]}  \n-----|-----|-----\n  |  |  {self.grid[7]}  |  {self.grid[8]}  "
+        elif win_dir == 5:
+            grid_string = f"  {self.grid[0]}  |  |  |  {self.grid[2]}  \n-----|-----|-----\n  {self.grid[3]}  |  |  |  {self.grid[5]}  \n-----|-----|-----\n  {self.grid[6]}  |  |  |  {self.grid[8]}  "
+        elif win_dir == 6:
+            grid_string = f"  {self.grid[0]}  |  {self.grid[1]}  |  |  \n-----|-----|-----\n  {self.grid[3]}  |  {self.grid[4]}  |  |  \n-----|-----|-----\n  {self.grid[6]}  |  {self.grid[7]}  |  |  "
+        elif win_dir == 7:
+            grid_string = f"  ⟍  |  {self.grid[1]}  |  {self.grid[2]}  \n-----|-----|-----\n  {self.grid[3]}  |  ⟍  |  {self.grid[5]}  \n-----|-----|-----\n  {self.grid[6]}  |  {self.grid[7]}  |  ⟍  "
+        elif win_dir == 8:
+            grid_string = f"  {self.grid[0]}  |  {self.grid[1]}  |  ⟋  \n-----|-----|-----\n  {self.grid[3]}  |  ⟋  |  {self.grid[5]}  \n-----|-----|-----\n  ⟋  |  {self.grid[7]}  |  {self.grid[8]}  "
+        else:
+            grid_string = f"  {self.grid[0]}  |  {self.grid[1]}  |  {self.grid[2]}  \n-----|-----|-----\n  {self.grid[3]}  |  {self.grid[4]}  |  {self.grid[5]}  \n-----|-----|-----\n  {self.grid[6]}  |  {self.grid[7]}  |  {self.grid[8]}  "
+
+        return grid_string
+
     def play_2p(self):
         print("Player 1 Symbol: X")
         print("Player 2 Symbol: O\n")
 
         win = False
+        win_dir = 0
 
         print(self.print_grid() + "\n")
 
         while True:
             print("Player 1")
-            win, _ = self.user_move('X')
+            win, _, win_dir = self.user_move('X')
             print("\n" + self.print_grid() + "\n")
 
             if win:
                 print("Player 1 wins!")
-                print("\n" + self.print_grid())
+                print("\n" + self.print_win_grid(win_dir))
                 break
 
             draw = self.check_draw()
@@ -154,12 +189,12 @@ class TicTacToe:
                 break
 
             print("Player 2")
-            win, _ = self.user_move('O')
+            win, _, win_dir = self.user_move('O')
             print("\n" + self.print_grid() + "\n")
 
             if win:
                 print("Player 2 wins!")
-                print("\n" + self.print_grid())
+                print("\n" + self.print_win_grid(win_dir))
                 break
 
             draw = self.check_draw()
@@ -188,6 +223,7 @@ class TicTacToe:
             print("Easy Bot goes first!\n")
 
         win = False
+        win_dir = 0
 
         print(self.print_grid() + "\n")
 
@@ -196,12 +232,12 @@ class TicTacToe:
             print("\n" + self.print_grid() + "\n")
 
         while True:
-            win, _ = self.user_move(player_symbol)
+            win, _, win_dir = self.user_move(player_symbol)
             print("\n" + self.print_grid() + "\n")
 
             if win:
                 print("Player wins!")
-                print("\n" + self.print_grid())
+                print("\n" + self.print_win_grid(win_dir))
                 break
 
             draw = self.check_draw()
@@ -210,12 +246,12 @@ class TicTacToe:
                 break
             
             time.sleep(0.5)
-            win, _ = self.easy_move(bot_symbol)
+            win, _, win_dir = self.easy_move(bot_symbol)
             print("\n" + self.print_grid() + "\n")
 
             if win:
                 print("Easy Bot wins!")
-                print("\n" + self.print_grid())
+                print("\n" + self.print_win_grid(win_dir))
                 break
 
             draw = self.check_draw()
@@ -244,20 +280,21 @@ class TicTacToe:
             print("Hard Bot goes first!\n")
 
         win = False
+        win_dir = 0
 
         print(self.print_grid() + "\n")
 
         if first_player == 1:
-            win, _ = self.hard_move(bot_symbol, True)
+            win, _, win_dir = self.hard_move(bot_symbol, True)
             print("\n" + self.print_grid() + "\n")
 
         while True:
-            win, _ = self.user_move(player_symbol)
+            win, _, win_dir = self.user_move(player_symbol)
             print("\n" + self.print_grid() + "\n")
 
             if win:
                 print("Player wins!")
-                print("\n" + self.print_grid())
+                print("\n" + self.print_win_grid(win_dir))
                 break
 
             draw = self.check_draw()
@@ -266,49 +303,73 @@ class TicTacToe:
                 break
             
             time.sleep(0.5)
-            win, _ = self.hard_move(bot_symbol, False)
+            win, _, win_dir = self.hard_move(bot_symbol, False)
             print("\n" + self.print_grid() + "\n")
 
             if win:
                 print("Hard Bot wins!")
-                print("\n" + self.print_grid())
+                print("\n" + self.print_win_grid(win_dir))
                 break
 
             draw = self.check_draw()
             if draw:
                 print("Draw!")
                 break
-        
+
         return 0
 
-    def play_tictactoe(self):
-        print("Enter mode (0: 2-Player, 1: Easy Bot, 2: Hard Bot):")
-        self.mode = int(input())
+    def pick_mode_play(self, prev_mode):
+        if prev_mode == -1:
+            self.mode = int(input("Enter mode (1: 2-Player, 2: Easy Bot, 3: Hard Bot): "))
 
-        while self.mode < 0 or self.mode > 2:
-            print("Invalid mode. Enter 0, 1, or 2:")
-            self.mode = int(input())
+            while self.mode < 1 or self.mode > 3:
+                self.mode = int(input("Invalid mode. Enter 1, 2, or 3: "))
+        else:
+            self.mode = prev_mode
 
         mode_name = ""
-        if self.mode == 0:
+        if self.mode == 1:
             mode_name = "2-Player"
-        elif self.mode == 1:
+        elif self.mode == 2:
             mode_name = "Easy Bot"
         else:
             mode_name = "Hard Bot"
 
-        print(f"\nYou picked: {mode_name}\n")
+        print(f"\nNow Playing: {mode_name}\n")
 
         sample_grid_string = "  1  |  2  |  3  \n-----|-----|-----\n  4  |  5  |  6  \n-----|-----|-----\n  7  |  8  |  9  "
         print(f"To mark a cell, enter the corresponding number as shown below:\n\n{sample_grid_string}\n________________________________________\n")
 
-        if self.mode == 0:
+        if self.mode == 1:
             self.play_2p()
-        elif self.mode == 1:
-            self.play_easy()
+            return 1
         elif self.mode == 2:
+            self.play_easy()
+            return 2
+        elif self.mode == 3:
             self.play_hard()
+            return 3
     
-game = TicTacToe()
+def play_tictactoe():
+    cont = True
+    prev_mode = -1
 
-game.play_tictactoe()
+    while cont:
+        tictactoe = TicTacToe()
+
+        prev_mode = tictactoe.pick_mode_play(prev_mode)
+        
+        print("________________________________________")
+
+        cont = input("\nPlay Again (Y/N): ").lower() == 'y'
+        repeat = False
+
+        if cont:
+            repeat = input("Same Mode (Y/N): ").lower() == 'y'
+
+        if not repeat:
+            prev_mode = -1
+
+        print("________________________________________\n")
+
+play_tictactoe()

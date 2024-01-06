@@ -102,6 +102,7 @@ def play_hangman():
     score = 0
     num_games = 0
     cont = True
+    alphabet = set(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'])
 
     while cont:
         num_games += 1
@@ -110,12 +111,13 @@ def play_hangman():
         terminate = False
 
         while not terminate:
-            print("\nEnter guess: ")
-            letter = input().lower()
+            letter = input("\nEnter guess: ").lower()
 
-            while letter in hangman.prior_guess:
-                print(f"\nAlready guessed '{letter}' before!\nEnter new guess: ")
-                letter = input().lower()
+            while letter in hangman.prior_guess or letter not in alphabet:
+                if letter in hangman.prior_guess:
+                    letter = input(f"\nAlready guessed '{letter}' before!\nEnter new guess: ").lower()
+                elif letter not in alphabet:
+                    letter = input(f"\n'{letter}' is not a letter!\nEnter new guess: ").lower()
 
             terminate = hangman.guess_letter(letter)
 
@@ -129,9 +131,8 @@ def play_hangman():
         
         print("________________________________________")
 
-        print("\nContinue (Y/N): ")
-        cont = input().lower() == 'y'
+        cont = input("\nContinue (Y/N): ").lower() == 'y'
 
-        print("________________________________________")
+        print("________________________________________\n")
 
 play_hangman()
